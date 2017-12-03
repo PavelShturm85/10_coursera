@@ -5,16 +5,16 @@ from bs4 import BeautifulSoup
 from openpyxl import Workbook
 
 
-def createParser():
-        parser = argparse.ArgumentParser(
-            description='Module get courses info.')
-        parser.add_argument(
-            '-am', '--amount', default=5, type=int,
-            help='How many courses chek for info.')
-        parser.add_argument(
-            '-out', '--output', default='courses_info.xlsx',
-            help='Where to put the file.')
-        return parser
+def create_parser():
+    parser = argparse.ArgumentParser(
+        description='Module get courses info.')
+    parser.add_argument(
+        '-am', '--amount', default=5, type=int,
+        help='How many courses chek for info.')
+    parser.add_argument(
+        '-out', '--output', default='courses_info.xlsx',
+        help='Where to put the file.')
+    return parser
 
 
 def get_courses_url_list(amount):
@@ -79,7 +79,7 @@ def save_courses_info_to_xlsx(dest_filename, wb):
 
 
 if __name__ == '__main__':
-    parser = createParser()
+    parser = create_parser()
     namespace = parser.parse_args()
     dest_filename = namespace.output
     amount = namespace.amount
