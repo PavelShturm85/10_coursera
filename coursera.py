@@ -28,17 +28,18 @@ def get_courses_url_list(amount):
     return url_list[:amount]
 
 
-def get_course_page(courses_url_list):
-    course_page = []
-    for courses_url in courses_url_list:
-        url = '{}'.format(courses_url)
-        page = requests.get(url).text
-        course_page.append(page)
-    return course_page
+def get_courses_pages_list(courses_url_list):
+    return [requests.get(courses_url).text for courses_url in courses_url_list]
 
 
 def get_course_info(course_page):
-    courses_list = []
+    courses_list = [
+        ['Course name:',
+         'Grade:',
+         'Language:',
+         'Start date:',
+         'Amount week:']
+    ]
     for page in course_page:
         soup = BeautifulSoup(page, "lxml")
 
@@ -58,18 +59,10 @@ def get_course_info(course_page):
     return courses_list
 
 
-def output_courses_info_to_xlsx(filepath):
+def output_courses_info_to_xlsx(courses_list):
     wb = Workbook()
     sheet = wb.active
-    name_column = (
-        'Course name:',
-        'Grade:',
-        'Language:',
-        'Start date:',
-        'Amount week:'
-    )
-    sheet.append(name_column)
-    for row in filepath:
+    for row in courses_list:
         sheet.append(row)
     return wb
 
@@ -84,7 +77,7 @@ if __name__ == '__main__':
     dest_filename = namespace.output
     amount = namespace.amount
 
-    course_page = get_course_page(get_courses_url_list(amount))
+    course_page = get_courses_pages_list(get_courses_url_list(amount))
     course_info = get_course_info(course_page)
     output_courses_info = output_courses_info_to_xlsx(course_info)
     save_courses_info_to_xlsx(dest_filename, output_courses_info)
