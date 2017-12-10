@@ -3,6 +3,7 @@ import argparse
 from lxml import etree
 from bs4 import BeautifulSoup
 from openpyxl import Workbook
+from collections import namedtuple
 
 
 def create_parser():
@@ -33,13 +34,14 @@ def get_courses_pages_list(courses_url_list):
 
 
 def get_course_info(course_page):
-    courses_list = [
-        ['Course name:',
-         'Grade:',
-         'Language:',
-         'Start date:',
-         'Amount week:']
-    ]
+    course = namedtuple('course', [
+        'Course_name',
+        'Grade',
+        'Language',
+        'Start_date',
+        'Amount_week',
+    ])
+
     for page in course_page:
         soup = BeautifulSoup(page, "lxml")
 
@@ -54,15 +56,19 @@ def get_course_info(course_page):
         amount_week = len(soup.find_all(
             "div", class_="week-heading"))
 
-        course = [course_name, grade, language, startdate, amount_week]
-        courses_list.append(course)
-    return courses_list
+        courses_tuple = course(Course_name=course_name,
+                               Grade=grade,
+                               Language=language,
+                               Start_date=startdate,
+                               Amount_week='{} weeks'.format(amount_week))
+
+        yield courses_tuple
 
 
-def output_courses_info_to_xlsx(courses_list):
+def output_courses_info_to_xlsx(courses_tuple):
     wb = Workbook()
     sheet = wb.active
-    for row in courses_list:
+    for row in courses_tuple:
         sheet.append(row)
     return wb
 
@@ -76,7 +82,6 @@ if __name__ == '__main__':
     namespace = parser.parse_args()
     dest_filename = namespace.output
     amount = namespace.amount
-
     course_page = get_courses_pages_list(get_courses_url_list(amount))
     course_info = get_course_info(course_page)
     output_courses_info = output_courses_info_to_xlsx(course_info)
